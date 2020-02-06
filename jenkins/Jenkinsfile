@@ -1,0 +1,29 @@
+#!/usr/bin/env groovy
+
+def loginBash = '#!/bin/bash -l'
+def cluster
+
+stage('Init'){
+    node('mg2'){
+        checkout scm
+        def rootdir = pwd()
+        cluster = load("${rootdir}/jenkins/machines")
+    }
+}
+
+
+stage('Build Stage') {
+    node('mg2') {
+        checkout scm
+        def prefix = cluster.cluster.prefix
+        command = """
+            jenkins/production.sh --prefix=$prefix --list=Template
+        """
+        sh("""$command
+            if [ -d \\"\\$EASYBUILD_TMPDIR\\" ]; then
+                chmod -R o+r \\$EASYBUILD_TMPDIR
+                find \\$EASYBUILD_TMPDIR -type d -exec chmod o+x '{}' \\\\;
+            fi
+            exit \\$status""")
+    }
+}

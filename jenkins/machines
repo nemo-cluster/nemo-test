@@ -1,0 +1,4 @@
+def cluster = [
+        cpus: 20,
+        prefix: "/home/jenkins/software"
+]

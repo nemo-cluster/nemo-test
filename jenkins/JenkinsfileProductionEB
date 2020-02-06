@@ -1,0 +1,16 @@
+#!/usr/bin/env groovy
+
+def loginBash = '#!/bin/bash -l'
+def scratch = "/home/jenkins/scratch"
+
+stage('Build Stage') {
+    def buildPath = "$scratch/build"
+    node(mg2) {
+        checkout scm
+        def workingDir = sh(returnStdout: true,
+                script: 'echo $PWD').trim()
+        sh 'printenv'
+        sh 'echo $env'
+    }
+    // methods.notifySlackFinish()
+}
