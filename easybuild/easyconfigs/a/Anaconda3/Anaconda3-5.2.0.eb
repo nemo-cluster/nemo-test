@@ -1,0 +1,18 @@
+easyblock = 'EB_Anaconda'
+
+name = 'Anaconda3'
+version = '5.2.0'
+
+homepage = 'https://www.anaconda.com'
+description = """Built to complement the rich, open source Python community,
+the Anaconda platform provides an enterprise-ready data analytics platform 
+that empowers companies to adopt a modern open data science analytics architecture.
+"""
+
+toolchain = SYSTEM
+
+source_urls = ['https://repo.anaconda.com/archive/']
+sources = ['%(name)s-%(version)s-Linux-x86_64.sh']
+checksums = ['09f53738b0cd3bb96f5b1bac488e5528df9906be2480fe61df40e0e0d19e3d48']
+
+moduleclass = 'lang'

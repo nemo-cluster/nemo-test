@@ -119,7 +119,7 @@ echo -e " Compilation file: " "${eb_lists[@]}" "\n"
 echo -e " List of builds (including options):"
 for ((i=0; i<${#eb_files[@]}; i++)); do
 # use eval to expand environment variables in the EasyBuild options of each build
-    eb_files[i]=$(eval echo "${eb_files[i]}")
+    eb_files[i]=$(eval "${eb_files[i]}")
     echo "${eb_files[$i]}"
 done
 
