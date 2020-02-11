@@ -1,29 +1,38 @@
 #!/usr/bin/env groovy
 
 def loginBash = '#!/bin/bash -l'
-def cluster
+def cluster = [cpus: 20,
+               prefix: "/home/jenkins/software"]
 
-stage('Init'){
-    node('mg2'){
-        checkout scm
-        def rootdir = pwd()
-        cluster = load("${rootdir}/jenkins/machines")
-    }
-}
 
 
 stage('Build Stage') {
     node('mg2') {
         checkout scm
-        def prefix = cluster.cluster.prefix
-        command = """
-            jenkins/production.sh --prefix=$prefix --list=Template
-        """
-        sh("""$command
-            if [ -d \\"\\$EASYBUILD_TMPDIR\\" ]; then
-                chmod -R o+r \\$EASYBUILD_TMPDIR
-                find \\$EASYBUILD_TMPDIR -type d -exec chmod o+x '{}' \\\\;
-            fi
-            exit \\$status""")
+        def rootDir = pwd()
+        def workingDir = sh(returnStdout: true,
+                script: 'echo $PWD').trim()
+        def build_id = BUILD_NUMBER
+        def branch = env.gitlabBranch
+        def prefix
+        def robot
+        def softwareList
+        if (branch == "master"){
+            prefix = cluster.prefix
+            robot = ""
+            softwareList = "Template"
+        } else {
+            prefix = "${workingDir}/software"
+            sh("""mkdir -p ${prefix} || true""")
+            robot = "--robot ${workingDir}/easybuild/easyconfig"
+            sh("""git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ |awk '{print \"basename \"\$0}' > ${workingDir}/${build_id}""")
+            softwareList="${workingDir}/${build_id}"
+        }
+        sh ("""echo $prefix""")
+        sh ("""echo $robot""")
+        sh ("""echo $softwareList""")
+        sh ("""cat $softwareList""")
+        // command = "$workingDir/jenkins/production.sh --prefix=$prefix --list=$softwareList"
+        // sh("""$command""")
     }
 }

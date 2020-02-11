@@ -66,33 +66,17 @@ done
 eb_args=""
 
 # --- COMMON SETUP ---
-# module unuse PATH before loading EasyBuild module and building
-# When building on testing and regression we should unuse the path???? or just install/modules path resolves it?
-# No need to unuse a path, we can just change the install-modules path.......
-
-if [ -n "$unuse_path" ]; then
- echo -e " Unuse path: $unuse_path "
- module unuse $unuse_path
- echo -e " Updated MODULEPATH: $MODULEPATH "
-fi
 
 # check prefix folder
 if [ -z "$PREFIX" ]; then
     echo -e "\n Prefix folder not defined. Please use the option -p,--prefix to define the prefix folder \n"
     usage
 else
- export EASYBUILD_PREFIX=$PREFIX
-# check if PREFIX is already in MODULEPATH after unuse command
- statuspath=$(echo "$MODULEPATH" | grep -c "$EASYBUILD_PREFIX")
- if [ "$statuspath" -eq 0 ]; then
-  echo -e " Use path (EASYBUILD_PREFIX): $EASYBUILD_PREFIX/modules/all "
-  module use "$EASYBUILD_PREFIX/modules/all"
-  echo -e " Updated MODULEPATH: $MODULEPATH "
- fi
+  eb_args="--prefix=$PREFIX"
 fi
 
 # --- BUILD ---
-# load module EasyBuild-custom
+module use $HOME/easybuild/modules/all
 module load EasyBuild
 
 # add hidden flag # dont realy understand this shit...
@@ -140,11 +124,16 @@ fi
 echo -e "\n Starting builds on $(date)"
 starttime=$(date +%s)
 # compile software with prefix, with
-
-
-
-echo "COMPILING!!!"
-
+status=0
+for((i=0; i<${#eb_files[@]}; i++)); do
+  echo -e "\n===============================================================\n"
+  # define name and version of the current build starting from the recipe name (obtained removing EasyBuild options from eb_files)
+  recipe=$(echo "${eb_files[$i]}" | cut -d' ' -f 1)
+  name=$(echo "$recipe" | cut -d'-' -f 1)
+  echo -e "eb ${eb_files[$i]} -r ${eb_args}"
+  eb "${eb_files[$i]}" -r ${eb_args}
+  status=$((status+$?))
+done
 
 # end time
 endtime=$(date +%s)
