@@ -77,7 +77,7 @@ if [ -z "$PREFIX" ]; then
     echo -e "\n Prefix folder not defined. Please use the option -p,--prefix to define the prefix folder \n"
     usage
 else
-  eb_args+=("--prefix=$PREFIX ")
+  eb_args+=("--prefix=$PREFIX")
 fi
 
 if [ -n "$ROBOT" ]; then
@@ -100,7 +100,7 @@ if [ -n "${eb_lists}" ] && [ -n "${hidden_deps}" ]; then
      hidden_match=$(grep $item "${eb_lists[@]}")
      if [ -n "${hidden_match}" ]; then
 # 'grep -n' returns the 1-based line number of the matching pattern within the input file
-         index_list=$(cat "${eb_lists[@]}" | grep -n "${item}" | awk -F ':' '{print $(NF-1)-1}')
+         index_list=$(cat "${eb_lists[@]}0" | grep -n "${item}" | awk -F ':' '{print $(NF-1)-1}')
 # append the --hidden flag to matching items within the selected build list
          for index in ${index_list}; do
              eb_files[$index]+=" --hidden"

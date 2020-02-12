@@ -8,15 +8,15 @@ def cluster = [cpus: 20,
 
 stage('Build Stage') {
     node('mg2') {
-        checkout scm
+        gitVars = checkout scm
         def rootDir = pwd()
         def workingDir = sh(returnStdout: true,
                 script: 'echo $PWD').trim()
         def build_id = BUILD_NUMBER
-        def branch = env.gitlabBranch
+        def branch = gitVars.GIT_BRANCH.trim()
         def prefix
         def softwareList
-        if (branch == "master"){
+        if (branch == "origin/master"){
             prefix = cluster.prefix
             softwareList = "Template"
         } else {
