@@ -127,10 +127,10 @@ fi
 
 if [ -n "$hidden_deps" ]; then
   # get all configs names from all robots path
-  robots_paths=$(eb --show-config --robot /home/jenkins/software/ | grep robot-paths | awk -F'=' '{print $2}' | head -1 | tr ',' '')
-  possible_deps=$(find  $robots_paths -type f -iname '*.eb' -printf '%f\n' | cut -d'.' -f1| cut -d'-' -f1 | sort | uniq | tr '\n' ', ')
+  robots_paths=$(eb --show-config --robot /home/jenkins/software/ | grep robot-paths | awk -F'=' '{print $2}' | head -1 | tr -d ',')
+  possible_deps=$(find  $robots_paths -type f -iname '*.eb' -printf '%f\n' | cut -d'.' -f1| cut -d'-' -f1 | sort | uniq | tr '\n' ',')
   possible_deps=${possible_deps::-1}
-  eb_args+=("--hide_deps=$possible_deps")
+  eb_args+=("--hide-deps=$possible_deps")
 fi
 
 
