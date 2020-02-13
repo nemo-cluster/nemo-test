@@ -12,15 +12,16 @@ usage() {
     -l,--list         Absolute path to production file   (mandatory: EasyBuild production list)
     -p,--prefix       Absolute path to EasyBuild prefix  (mandatory: installation folder)
     -r, --robot       Robot path that is going to be used
-    -u,--unuse        Module unuse colon separated PATH  (optional: default is null)
+    -u,--use          Module use colon separated PATH  (optional: Used To testing)
+    -e, --eb-path     Easybuild instalation module path (mandatory)
     --hide-deps       Force hide modules listed in 'hide-deps' (TestingEB only)
     --exit-on-error   Exit when an error occurs (TestingEB only)
     "
     exit 1;
 }
 
-longopts="help,list:,prefix:,robot:,unuse:,hide-deps,exit-on-error"
-shortopts="h,l:,p:,r:,u:"
+longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error"
+shortopts="h,l:,p:,r:,u:,e:"
 eval set -- $(getopt -o ${shortopts} -l ${longopts} -n ${scriptname} -- "$@" 2> /dev/null)
 
 eb_files=()
@@ -47,9 +48,13 @@ while [ $# -ne 0 ]; do
             shift
             ROBOT="$1"
             ;;
-        -u | --unuse)
+        -u | --use)
             shift
-            unuse_path="$1"
+            use_path="$1"
+            ;;
+        -e | --eb-path)
+            shift
+            EB_PATH="$1"
             ;;
         --exit-on-error)
             exit_on_error=true
@@ -84,30 +89,19 @@ if [ -n "$ROBOT" ]; then
   eb_args+=("--robot=$ROBOT")
 fi
 
+if [ -z "$EB_PATH" ]; then
+  echo -e "\n Need to specify EasyBuild path. Please use uoption -e, --eb-path \n"
+  usage
+fi
 
 # --- BUILD ---
-module use $HOME/easybuild/modules/all
+module use "$EB_PATH"
 module load EasyBuild
 
-# add hidden flag # dont realy understand this shit...
-if [ -n "${eb_lists}" ] && [ -n "${hidden_deps}" ]; then
-  __eb_list=$(eb --show-full-config | grep -i hide | awk -F'=' '{print $2}' | head -1)
-  IFS=', ' read -r -a hidden_deps <<< "${__eb_list}"
-
-# match  items with hide deps list: matching items will be built using the EasyBuild flag '--hidden'
- echo -e "Items matching hidden list and easybuild recipes to install (\"${eb_lists}\")"
- for item in "${hidden_deps[@]}"; do
-     hidden_match=$(grep $item "${eb_lists[@]}")
-     if [ -n "${hidden_match}" ]; then
-# 'grep -n' returns the 1-based line number of the matching pattern within the input file
-         index_list=$(cat "${eb_lists[@]}0" | grep -n "${item}" | awk -F ':' '{print $(NF-1)-1}')
-# append the --hidden flag to matching items within the selected build list
-         for index in ${index_list}; do
-             eb_files[$index]+=" --hidden"
-             echo "${eb_files[$index]}"
-         done
-     fi
- done
+if [ -n "$use_path" ]; then
+ echo -e " Aditional path: $use_path "
+ module unuse "$use_path"
+ echo -e " Updated MODULEPATH: $MODULEPATH "
 fi
 
 # print EasyBuild configuration, module list, production file(s), list of builds
@@ -130,6 +124,16 @@ if [[ "$dryrun" =~ "ERROR" ]]; then
  echo -e "$dryrun" | grep "ERROR"
  exit 1
 fi
+
+if [ -n "$hidden_deps" ]; then
+  # get all configs names from all robots path
+  robots_paths=$(eb --show-config --robot /home/jenkins/software/ | grep robot-paths | awk -F'=' '{print $2}' | head -1 | tr ',' '')
+  possible_deps=$(find  $robots_paths -type f -iname '*.eb' -printf '%f\n' | cut -d'.' -f1| cut -d'-' -f1 | sort | uniq | tr '\n' ', ')
+  possible_deps=${possible_deps::-1}
+  eb_args+=("--hide_deps=$possible_deps")
+fi
+
+
 
 # start time
 echo -e "\n Starting builds on $(date)"

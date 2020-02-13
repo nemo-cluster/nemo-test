@@ -28,7 +28,7 @@ stage('Build Stage') {
         }
         sh ("""echo $softwareList""")
         sh ("""cat $softwareList""")
-        command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $workingDir/jenkins/production.sh --prefix=$prefix --list=$softwareList --robot=$workingDir"
+        command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $workingDir/jenkins/production.sh --prefix=$prefix --list=$softwareList --robot=$workingDir/easybuild/easyconfigs"
         sh("""$command""")
     }
 }
