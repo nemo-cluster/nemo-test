@@ -100,7 +100,7 @@ module load EasyBuild
 
 if [ -n "$use_path" ]; then
  echo -e " Aditional path: $use_path "
- module unuse "$use_path"
+ module use "$use_path"
  echo -e " Updated MODULEPATH: $MODULEPATH "
 fi
 
