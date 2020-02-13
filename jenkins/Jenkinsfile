@@ -1,6 +1,5 @@
 #!/usr/bin/env groovy
 
-def loginBash = '#!/bin/bash -l'
 def cluster = [cpus: "20",
                mem: "120g",
                prefix: "/home/jenkins/software",
@@ -8,32 +7,49 @@ def cluster = [cpus: "20",
                easybuild_path: "/home/jenkins/easybuild/modules/all"
 ]
 
+def running_opts = []
 
-
-stage('Build Stage') {
-    node('mg2') {
+node('mg2') {
+    stage('Defining Task') {
         gitVars = checkout scm
-        def rootDir = pwd()
         def workingDir = sh(returnStdout: true,
                 script: 'echo $PWD').trim()
-        def build_id = BUILD_NUMBER
         def branch = gitVars.GIT_BRANCH.trim()
         def prefix
         def softwareList
-        def usePrefix = ""
-        if (branch == "origin/master"){
-            prefix = cluster.prefix
-            softwareList = "Template"
+        def triggeredBy = currentBuild.getBuildCauses()[0].shortDescription.split(' ')[2]
+        def commitMessage = sh(returnStdout: true, script: 'git log -1 --pretty=format:%s').trim()
+
+        if (branch == "origin/master") {
+            prefix = "${cluster.prefix}"
+            softwareList="Template"
+            if (triggeredBy == "timer" || commitMessage ==~ /.*REGRESSION.*/ ) {
+                echo "Detecting regression"
+                prefix = "${workingDir}/software"
+            }
+            running_opts.add("--hide-deps")
         } else {
             prefix = "${workingDir}/software"
-            sh("""mkdir -p ${prefix} || true""")
-            sh("""git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ |awk '{print \"basename \"\$0}' > ${workingDir}/${build_id}""")
             softwareList="${workingDir}/${build_id}"
-            usePrefix = "--use=${cluster.modules_prefix}"
+            sh("""git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ |awk '{print \"basename \"\$0}' > ${softwareList}""")
         }
-        sh ("""echo $softwareList""")
-        sh ("""cat $softwareList""")
-        command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $workingDir/jenkins/production.sh --prefix=$prefix --list=$softwareList --robot=$workingDir/easybuild/easyconfigs --eb-path=${cluster.easybuild_path} --hide-deps $usePrefix"
+        running_opts.add("--prefix=${prefix}")
+        running_opts.add("--list=${softwareList}")
+
+        echo "================================="
+        println running_opts
+        echo "================================="
+
+    }
+
+    stage('Build Stage') {
+        def workingDir = sh(returnStdout: true,
+                script: 'echo $PWD').trim()
+        def opts = ""
+        for (i in running_opts) {
+            opts += " $i"
+        }
+        command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $workingDir/jenkins/production.sh $opts"
         sh("""$command""")
     }
 }
