@@ -3,7 +3,7 @@
 def cluster = [cpus: "20",
                mem: "120g",
                prefix: "/home/jenkins/software",
-               modules_prefix: "/home/jenkins/software/modules/all",
+               modules_prefix: "/home/jenkins/software/modules",
                software_prefix: "/home/jenkins/software/software",
                easybuild_path: "/home/jenkins/easybuild/modules/all"]
 
@@ -36,6 +36,7 @@ node('mg2') {
             prefix = "${workingDir}/software"
             softwareList="${workingDir}/${build_id}"
             sh("""git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ |awk '{print \"basename \"\$0}' > ${softwareList}""")
+            running_opts.add("--use=${cluster.modules_prefix}/all")
         }
         running_opts.add("--prefix=${prefix}")
         running_opts.add("--list=${softwareList}")
