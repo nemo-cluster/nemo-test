@@ -4,8 +4,8 @@ def cluster = [cpus: "20",
                mem: "120g",
                prefix: "/home/jenkins/software",
                modules_prefix: "/home/jenkins/software/modules/all",
-               easybuild_path: "/home/jenkins/easybuild/modules/all"
-]
+               software_prefix: "/home/jenkins/software/software",
+               easybuild_path: "/home/jenkins/easybuild/modules/all"]
 
 def running_opts = []
 
@@ -26,8 +26,12 @@ node('mg2') {
             if (triggeredBy == "timer" || commitMessage ==~ /.*REGRESSION.*/ ) {
                 echo "Detecting regression"
                 prefix = "${workingDir}/software"
+            } else {
+                running_opts.add("--soft-prefix=${cluster.software_prefix}")
+                running_opts.add("--modules-prefix=${cluster.modules_prefix}")
             }
             running_opts.add("--hide-deps")
+
         } else {
             prefix = "${workingDir}/software"
             softwareList="${workingDir}/${build_id}"
@@ -35,7 +39,7 @@ node('mg2') {
         }
         running_opts.add("--prefix=${prefix}")
         running_opts.add("--list=${softwareList}")
-
+        running_opts.add("--eb-path=${cluster.easybuild_path}")
         echo "================================="
         println running_opts
         echo "================================="

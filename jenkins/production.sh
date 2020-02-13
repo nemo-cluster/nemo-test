@@ -11,6 +11,8 @@ usage() {
     -h,--help         Help message
     -l,--list         Absolute path to production file   (mandatory: EasyBuild production list)
     -p,--prefix       Absolute path to EasyBuild prefix  (mandatory: installation folder)
+    --soft-prefix     Absolute path to EasyBuild software prefix
+    --module-prefix   Absolute path to EasyBuild module prefix
     -r, --robot       Robot path that is going to be used
     -u,--use          Module use colon separated PATH  (optional: Used To testing)
     -e, --eb-path     Easybuild instalation module path (mandatory)
@@ -20,7 +22,7 @@ usage() {
     exit 1;
 }
 
-longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error"
+longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error,soft-prefix,module-prefix"
 shortopts="h,l:,p:,r:,u:,e:"
 eval set -- $(getopt -o ${shortopts} -l ${longopts} -n ${scriptname} -- "$@" 2> /dev/null)
 
@@ -43,6 +45,14 @@ while [ $# -ne 0 ]; do
         -p | --prefix)
             shift
             PREFIX="$1"
+            ;;
+        --soft-prefix)
+            shift
+            SOFT_PREFIX="$1"
+            ;;
+        --module-prefix)
+            shift
+            MODULE_PREFIX="$1"
             ;;
         -r | --robot)
             shift
@@ -89,6 +99,14 @@ if [ -n "$ROBOT" ]; then
   eb_args+=("--robot=$ROBOT")
 fi
 
+if [ -n "$SOFT_PREFIX" ] ; then
+  eb_args+=("--installpath-software=$SOFT_PREFIX")
+fi
+
+if [ -n "$MODULE_PREFIX" ]; then
+  eb_args+=("--installpath-modules=$MODULE_PREFIX")
+fi
+
 if [ -z "$EB_PATH" ]; then
   echo -e "\n Need to specify EasyBuild path. Please use uoption -e, --eb-path \n"
   usage
@@ -127,7 +145,7 @@ fi
 
 if [ -n "$hidden_deps" ]; then
   # get all configs names from all robots path
-  robots_paths=$(eb --show-config --robot /home/jenkins/software/ | grep robot-paths | awk -F'=' '{print $2}' | head -1 | tr -d ',')
+  robots_paths=$(eb --show-config "${eb_args[@]}" | grep robot-paths | awk -F'=' '{print $2}' | head -1 | tr -d ',')
   possible_deps=$(find  $robots_paths -type f -iname '*.eb' -printf '%f\n' | cut -d'.' -f1| cut -d'-' -f1 | sort | uniq | tr '\n' ',')
   possible_deps=${possible_deps::-1}
   eb_args+=("--hide-deps=$possible_deps")
