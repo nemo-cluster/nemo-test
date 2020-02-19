@@ -112,7 +112,8 @@ if [ -z "$EB_PATH" ]; then
   usage
 fi
 
-eb_args+=("--include-module-naming-schemes=easybuild-tools/module_naming_scheme/lowercase_categorized_mns.py --module-naming-scheme=LowercaseCategorizedModuleNamingScheme")
+eb_args+=("--include-module-naming-schemes=easybuild-tools/module_naming_scheme/lowercase_categorized_mns.py")
+eb_args+=("--module-naming-scheme=LowercaseCategorizedModuleNamingScheme")
 
 # --- BUILD ---
 module use "$EB_PATH"
