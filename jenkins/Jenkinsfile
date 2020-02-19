@@ -24,6 +24,7 @@ pipeline {
                     vars.triggeredBy = currentBuild.getBuildCauses()[0].shortDescription.split(' ')[2]
                     vars.commitMessage = sh(returnStdout: true, script: 'git log -1 --pretty=format:%s').trim()
                     vars.differences = sh(returnStdout: true, script: 'git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ | wc -l').trim() as Integer
+                    vars.regression = False
                     echo "$vars"
                 }
             }
@@ -64,9 +65,9 @@ pipeline {
                     if (vars.triggeredBy == "timer" || vars.commitMessage ==~ /.*REGRESSION.*/ ) {
                         echo "Detecting regression"
                         running_opts += " --prefix=${vars.workingDir}/software"
-                        var.regress = True
+                        vars.regression = True
                     } else {
-                        var.regress = False
+                        vars.regression = False
                         if (vars.branch == "origin/master"){ // Case master
                             running_opts += " --prefix=${cluster.prefix}"
                             running_opts += " --soft-prefix=${cluster.software_prefix}"
@@ -86,7 +87,7 @@ pipeline {
                     vars.branch == "origin/develop")
                 }
                 expression {
-                    var.regress == True
+                    vars.regression == True
                 }
             }
             steps {
@@ -103,7 +104,7 @@ pipeline {
                     vars.branch == "origin/develop") 
                 }
                 expression {
-                    var.regress == True
+                    vars.regression == True
                 }
             }
             steps {
