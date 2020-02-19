@@ -7,54 +7,111 @@ def cluster = [cpus: "20",
                software_prefix: "/home/jenkins/software/software",
                easybuild_path: "/home/jenkins/easybuild/modules/all"]
 
-def running_opts = []
+def running_opts = ""
 
-node('mg2') {
-    stage('Defining Task') {
-        gitVars = checkout scm
-        def workingDir = sh(returnStdout: true,
-                script: 'echo $PWD').trim()
-        def branch = gitVars.GIT_BRANCH.trim()
-        def prefix
-        def softwareList
-        def triggeredBy = currentBuild.getBuildCauses()[0].shortDescription.split(' ')[2]
-        def commitMessage = sh(returnStdout: true, script: 'git log -1 --pretty=format:%s').trim()
+def vars = [:]
 
-        if (branch == "origin/master") {
-            prefix = "${cluster.prefix}"
-            softwareList="Template"
-            if (triggeredBy == "timer" || commitMessage ==~ /.*REGRESSION.*/ ) {
-                echo "Detecting regression"
-                prefix = "${workingDir}/software"
-            } else {
-                running_opts.add("--soft-prefix=${cluster.software_prefix}")
-                running_opts.add("--modules-prefix=${cluster.modules_prefix}")
+pipeline {
+    agent { label 'mg2'}
+    stages {
+        stage('GetVars') {
+            steps {
+                script {
+                    gitVars = checkout scm
+                    vars.workingDir = sh(returnStdout: true,
+                        script: 'echo $PWD').trim()
+                    vars.branch = gitVars.GIT_BRANCH.trim()
+                    vars.triggeredBy = currentBuild.getBuildCauses()[0].shortDescription.split(' ')[2]
+                    vars.commitMessage = sh(returnStdout: true, script: 'git log -1 --pretty=format:%s').trim()
+                    vars.differences = sh(returnStdout: true, script: 'git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ | wc -l').trim() as Integer
+                    echo "$vars"
+                }
             }
-            running_opts.add("--hide-deps")
-
-        } else {
-            prefix = "${workingDir}/software"
-            softwareList="${workingDir}/${build_id}"
-            sh("""git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ |awk '{print \"basename \"\$0}' > ${softwareList}""")
-            running_opts.add("--use=${cluster.modules_prefix}/all")
         }
-        running_opts.add("--prefix=${prefix}")
-        running_opts.add("--list=${softwareList}")
-        running_opts.add("--eb-path=${cluster.easybuild_path}")
-        echo "================================="
-        println running_opts
-        echo "================================="
-
-    }
-
-    stage('Build Stage') {
-        def workingDir = sh(returnStdout: true,
-                script: 'echo $PWD').trim()
-        def opts = ""
-        for (i in running_opts) {
-            opts += " $i"
+        stage('TestBuild'){
+            when {
+                expression { 
+                    vars.differences > 0 && 
+                    vars.branch != "origin/master" && 
+                    vars.branch != "origin/develop" 
+                }
+            }
+            steps {
+                script {
+                    running_opts += " --prefix=${vars.workingDir}/software"
+                    running_opts += " --list=${vars.workingDir}/${build_id}"
+                    running_opts += " --use=${cluster.modules_prefix}/all"
+                    running_opts += " --eb-path=${cluster.easybuild_path}"
+                    sh("""git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ |awk '{print \"basename \"\$0}' > ${softwareList}""")
+                    command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $workingDir/jenkins/production.sh $running_opts"
+                    sh("""$command""")
+                }
+            }    
         }
-        command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $workingDir/jenkins/production.sh $opts"
-        sh("""$command""")
+        stage('Prepare Build'){
+            when {
+                expression{
+                    vars.branch == "origin/master" ||
+                    vars.branch == "origin/develop"
+                }
+            }
+            steps {
+                script {
+                    running_opts += " --list=Template"
+                    running_opts += " --hide-deps"
+                    running_opts += " --eb-path=${cluster.easybuild_path}"
+                    // Case Regress
+                    if (vars.triggeredBy == "timer" || vars.commitMessage ==~ /.*REGRESSION.*/ ) {
+                        echo "Detecting regression"
+                        running_opts += " --prefix=${vars.workingDir}/software"
+                        var.regress = True
+                    } else {
+                        var.regress = False
+                        if (vars.branch == "origin/master"){ // Case master
+                            running_opts += " --prefix=${cluster.prefix}"
+                            running_opts += " --soft-prefix=${cluster.software_prefix}"
+                            running_opts += " --modules-prefix=${cluster.modules_prefix}"
+                        } else if( vars.branch == "origin/develop"){
+                            //Do rsync and put new prefixes...
+                            running_opts += " --prefix=${vars.workingDir}/software"
+                        }
+                    }
+                }
+            }
+        }
+        stage('Build'){
+            when {
+                expression {
+                    (vars.branch == "origin/master" ||
+                    vars.branch == "origin/develop")
+                }
+                expression {
+                    var.regress == True
+                }
+            }
+            steps {
+                script {
+                    command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $workingDir/jenkins/production.sh $running_opts"
+                    sh("""$command""")
+                }
+            }
+        }
+        stage('Regression'){
+            when {
+                expression {
+                    (vars.branch == "origin/master" ||
+                    vars.branch == "origin/develop") 
+                }
+                expression {
+                    var.regress == True
+                }
+            }
+            steps {
+                script {
+                    command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $workingDir/jenkins/production.sh $running_opts"
+                    sh("""$command""")
+                }
+            }
+        }
     }
 }
