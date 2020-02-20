@@ -1,2 +1,4 @@
 Anaconda3-5.3.0.eb
 foss-2019b.eb
+Python-3.7.4-GCCcore-8.3.0.eb
+Cython-0.29.15-GCCcore-8.3.0-Python-3.7.4.eb 
