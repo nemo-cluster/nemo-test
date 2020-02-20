@@ -39,10 +39,12 @@ pipeline {
             }
             steps {
                 script {
+                    def softwareList = "${vars.workingDir}/${build_id}"
                     running_opts += " --prefix=${vars.workingDir}/software"
-                    running_opts += " --list=${vars.workingDir}/${build_id}"
+                    running_opts += " --list=${softwareList}"
                     running_opts += " --use=${cluster.modules_prefix}/all"
                     running_opts += " --eb-path=${cluster.easybuild_path}"
+                    running_opts += " --hide-deps"
                     sh("""git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ |awk '{print \"basename \"\$0}' > ${softwareList}""")
                     command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $vars.workingDir/jenkins/production.sh $running_opts"
                     sh("""$command""")
