@@ -5,8 +5,8 @@ easyblock='CMakeMake'
 homepage='https://nest-simulator.readthedocs.io/en/stable/index.html'
 description='simulator for spiking neural network models, ideal for networks of any size'
 
-toolchain = {'name': 'GCCcore', 'version': '8.3.0'}
-builddependencies = [('CMake', '3.15.3')]
+toolchain = {'name': 'GCC', 'version': '9.2.0-2.32'}
+builddependencies = [('CMake', '3.15.3', '', ('GCCcore', '8.3.0'))]
 moduleclass = 'bio'
 
 source_urls = ['https://github.com/nest/%(name)s/archive/']
