@@ -12,5 +12,5 @@ moduleclass = 'bio'
 source_urls = ['https://github.com/nest/%(name)s/archive/']
 sources = ['v%(version)s.tar.gz']
 checksums = ['40e33187c22d6e843d80095b221fa7fd5ebe4dbc0116765a91fc5c425dd0eca4']
-
+configure_cmd_prefix = '-Dwith-mpi=ON -Dwith-openmp=ON -Dwith-python=ON'
 
