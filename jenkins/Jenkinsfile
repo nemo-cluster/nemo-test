@@ -76,7 +76,17 @@ pipeline {
                             running_opts += " --modules-prefix=${cluster.modules_prefix}"
                         } else if( vars.branch == "origin/develop"){
                             //Do rsync and put new prefixes...
-                            running_opts += " --prefix=${vars.workingDir}/software"
+                            running_opts += " --prefix=${HOME}/develop/cluster-prefix"
+                            running_opts += " --soft-prefix=${HOME}/develop/software-prefix"
+                            running_opts += " --modules-prefix=${HOME}/develop/modules-prefix"
+                            sh("""
+                            mkdir -p ${HOME}/develop/cluster-prefix;
+                            mkdir -p ${HOME}/develop/software-prefix;
+                            mkdir -p ${HOME}/develop/modules-prefix;
+                            rsync -aHhv --delete ${cluster.prefix}/ ${HOME}/develop/cluster-prefix;
+                            rsync -aHhv --delete ${cluster.software_prefix}/ ${HOME}/develop/software-prefix;
+                            rsync -aHhv --delete ${cluster.modules_prefix}/ ${HOME}/develop/modules-prefix;
+                            """)
                         }
                     }
                 }

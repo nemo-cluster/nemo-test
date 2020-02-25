@@ -12,7 +12,7 @@ usage() {
     -l,--list         Absolute path to production file   (mandatory: EasyBuild production list)
     -p,--prefix       Absolute path to EasyBuild prefix  (mandatory: installation folder)
     --soft-prefix     Absolute path to EasyBuild software prefix
-    --module-prefix   Absolute path to EasyBuild module prefix
+    --modules-prefix   Absolute path to EasyBuild module prefix
     -r, --robot       Robot path that is going to be used
     -u,--use          Module use colon separated PATH  (optional: Used To testing)
     -e, --eb-path     Easybuild instalation module path (mandatory)
@@ -22,7 +22,7 @@ usage() {
     exit 1;
 }
 
-longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error,soft-prefix,module-prefix"
+longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error,soft-prefix:,modules-prefix:"
 shortopts="h,l:,p:,r:,u:,e:"
 eval set -- $(getopt -o ${shortopts} -l ${longopts} -n ${scriptname} -- "$@" 2> /dev/null)
 
@@ -50,9 +50,9 @@ while [ $# -ne 0 ]; do
             shift
             SOFT_PREFIX="$1"
             ;;
-        --module-prefix)
+        --modules-prefix)
             shift
-            MODULE_PREFIX="$1"
+            MODULES_PREFIX="$1"
             ;;
         -r | --robot)
             shift
@@ -103,8 +103,8 @@ if [ -n "$SOFT_PREFIX" ] ; then
   eb_args+=("--installpath-software=$SOFT_PREFIX")
 fi
 
-if [ -n "$MODULE_PREFIX" ]; then
-  eb_args+=("--installpath-modules=$MODULE_PREFIX")
+if [ -n "$MODULES_PREFIX" ]; then
+  eb_args+=("--installpath-modules=$MODULES_PREFIX")
 fi
 
 if [ -z "$EB_PATH" ]; then
