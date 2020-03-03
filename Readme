@@ -1,4 +1,17 @@
-Teste   2foo
-foo
-foo
-foo
+To easybuild to users work:
+	Easybuild must be installed in a acessible area And the module file must know where.
+	My module will set the prefix for $HOME/easybuild
+	
+The module file will:
+	use the easybuild module file path
+	use the user easybuild module file path ( or this should be done in the profile.d?? If the path exist uses it, sounds good, and but the module can use it again, dont think that this is a problem)
+	set the EASYBUILD_PREFIX
+	set the EASYBUILD_ROBOT_PATH
+	load eb
+
+The deploy fase:
+	Should copy the full project (when master) to something like /opt/nemo-ci/
+	The jenkinsscript should be runned from /opt/nemo-ci and also the production.sh
+
+This also allows us to have users submitting pull requests
+	
