@@ -2,10 +2,10 @@
 
 def cluster = [cpus: "20",
                mem: "120g",
-               prefix: "/home/jenkins/software",
-               modules_prefix: "/home/jenkins/software/modules",
-               software_prefix: "/home/jenkins/software/software",
-               easybuild_path: "/home/jenkins/easybuild/modules/all"]
+               prefix: "/home/jenkins/easybuild-files",
+               modules_prefix: "/opt/modules",
+               software_prefix: "/opt/software",
+               easybuild_path: "/opt/easybuild/modules/all"]
 
 def running_opts = ""
 
