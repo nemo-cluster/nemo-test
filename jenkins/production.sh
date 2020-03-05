@@ -121,7 +121,7 @@ if [ -n "$SOFT_PREFIX" ] ; then
 fi
 
 if [ -n "$MODULES_PREFIX" ]; then
-  echo "--installpath-modules=$MODULES_PREFIX" >> $CONFIGFILE
+  echo "installpath-modules=$MODULES_PREFIX" >> $CONFIGFILE
 fi
 
 if [ -z "$EB_PATH" ]; then
