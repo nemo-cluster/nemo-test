@@ -18,11 +18,19 @@ usage() {
     -e, --eb-path     Easybuild instalation module path (mandatory)
     --hide-deps       Force hide modules listed in 'hide-deps' (TestingEB only)
     --exit-on-error   Exit when an error occurs (TestingEB only)
+    --deploy-config   Deploy config from the values and exit (Deploy only)
     "
     exit 1;
 }
 
-longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error,soft-prefix:,modules-prefix:"
+create_config() {
+    if [ ! -e $1 ]; then
+        mkdir -p $(dirname $1) 2> /dev/null
+        echo "[override]" > $1
+    fi
+}
+
+longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error,soft-prefix:,modules-prefix:,deploy-config:"
 shortopts="h,l:,p:,r:,u:,e:"
 eval set -- $(getopt -o ${shortopts} -l ${longopts} -n ${scriptname} -- "$@" 2> /dev/null)
 
@@ -72,6 +80,10 @@ while [ $# -ne 0 ]; do
         --hide-deps)
             hidden_deps=true
             ;;
+        --deploy-confg)
+            shift
+            DEPLOY_CONFIG=$1
+            ;;
         --)
             ;;
         *)
@@ -81,30 +93,35 @@ while [ $# -ne 0 ]; do
     shift
 done
 
-
 # optional EasyBuild arguments
 eb_args=()
 
 # --- COMMON SETUP ---
+CONFIGFILE="easybuild.cfg"
+[ -e $CONFIGFILE ] && rm $CONFIGFILE
+create_config $CONFIGFILE
+eb_args+=("--configfiles=$CONFIGFILE")
 
 # check prefix folder
 if [ -z "$PREFIX" ]; then
     echo -e "\n Prefix folder not defined. Please use the option -p,--prefix to define the prefix folder \n"
     usage
 else
-  eb_args+=("--prefix=$PREFIX")
+  # eb_args+=("--prefix=$PREFIX")
+  echo "prefix=$PREFIX" >> $CONFIGFILE
 fi
 
 if [ -n "$ROBOT" ]; then
-  eb_args+=("--robot=$ROBOT")
+  echo "robot-paths=$ROBOT:%(DEFAULT_ROBOT_PATHS)s" >> $CONFIGFILE
 fi
 
+
 if [ -n "$SOFT_PREFIX" ] ; then
-  eb_args+=("--installpath-software=$SOFT_PREFIX")
+  echo "installpath-software=$SOFT_PREFIX" >> $CONFIGFILE
 fi
 
 if [ -n "$MODULES_PREFIX" ]; then
-  eb_args+=("--installpath-modules=$MODULES_PREFIX")
+  echo "--installpath-modules=$MODULES_PREFIX" >> $CONFIGFILE
 fi
 
 if [ -z "$EB_PATH" ]; then
@@ -112,12 +129,28 @@ if [ -z "$EB_PATH" ]; then
   usage
 fi
 
-eb_args+=("--include-module-naming-schemes=easybuild-tools/module_naming_scheme/lowercase_categorized_mns.py")
-eb_args+=("--module-naming-scheme=LowercaseCategorizedModuleNamingScheme")
+echo "include-module-naming-schemes=$(pwd)/easybuild-tools/module_naming_scheme/lowercase_categorized_mns.py" >> $CONFIGFILE
+echo "module-naming-scheme=LowercaseCategorizedModuleNamingScheme" >> $CONFIGFILE
 
 # --- BUILD ---
 module use "$EB_PATH"
 module load EasyBuild
+
+if [ -n "$hidden_deps" ]; then
+  # get all configs names from all robots path
+  robots_paths=$(eb --show-config "${eb_args[@]}" | grep robot-paths | awk -F'=' '{print $2}' | head -1 | tr -d ',')
+  possible_deps=$(find  $robots_paths -type f -iname '*.eb' -printf '%h\n' | awk -F/ '{print $NF}' | sort | uniq | tr '\n' ',')
+  possible_deps=${possible_deps::-1}
+  deps_number=$(echo "${possible_deps}" | tr ',' ' ' | wc -w)
+  echo "Found $deps_number possible dependencies to hide"
+  echo "hide-deps=$possible_deps" >> $CONFIGFILE
+  echo "hide-toolchains=$possible_deps" >> $CONFIGFILE
+fi
+
+if [ -n "$DEPLOY_CONFIG" ]; then
+  mv $CONFIGFILE $DEPLOY_CONFIG
+  exit 0;
+fi
 
 if [ -n "$use_path" ]; then
  echo -e " Aditional path: $use_path "
@@ -126,8 +159,10 @@ if [ -n "$use_path" ]; then
 fi
 
 # print EasyBuild configuration, module list, production file(s), list of builds
-echo -e "\n EasyBuild version and configuration ('eb --version' and 'eb --show-config'): "
-echo -e " $(eb --version) \n $(eb --show-config ${eb_args[@]}) \n"
+echo -e "\n EasyBuild version and configuration ('eb --version' and 'eb --show-config'(removing hidding commands)): "
+echo -e " $(eb --version) \n $(eb --show-config ${eb_args[@]} | grep -vwe ^hide-deps -vwe ^hide-toolchains) \n"
+echo -e "Hiding $(eb --show-config ${eb_args[@]} | grep -we ^hide-deps | cut -d= -f2 | wc -w) dependencies\n"
+echo -e "Hiding $(eb --show-config ${eb_args[@]} | grep -we ^hide-toolchains | cut -d= -f2 | wc -w) toolchains\n"
 echo -e " Modules loaded ('module list'): "
 echo -e " $(module list)"
 echo -e " Compilation file: " "${eb_lists[@]}" "\n"
@@ -145,15 +180,6 @@ if [[ "$dryrun" =~ "ERROR" ]]; then
  echo -e "$dryrun" | grep "ERROR"
  exit 1
 fi
-
-if [ -n "$hidden_deps" ]; then
-  # get all configs names from all robots path
-  robots_paths=$(eb --show-config "${eb_args[@]}" | grep robot-paths | awk -F'=' '{print $2}' | head -1 | tr -d ',')
-  possible_deps=$(find  $robots_paths -type f -iname '*.eb' -printf '%h\n' | awk -F/ '{print $NF}' | sort | uniq | tr '\n' ',')
-  possible_deps=${possible_deps::-1}
-  eb_args+=("--hide-deps=$possible_deps")
-fi
-
 
 
 # start time
