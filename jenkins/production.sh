@@ -18,7 +18,7 @@ usage() {
     -e, --eb-path     Easybuild instalation module path (mandatory)
     --hide-deps       Force hide modules listed in 'hide-deps' (TestingEB only)
     --exit-on-error   Exit when an error occurs (TestingEB only)
-    --deploy-config   Deploy config from the values and exit (Deploy only)
+    --deploy          Deploy nemobuild to the folder and exit (Deploy only)
     "
     exit 1;
 }
@@ -30,7 +30,7 @@ create_config() {
     fi
 }
 
-longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error,soft-prefix:,modules-prefix:,deploy-config:"
+longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error,soft-prefix:,modules-prefix:,deploy:"
 shortopts="h,l:,p:,r:,u:,e:"
 eval set -- $(getopt -o ${shortopts} -l ${longopts} -n ${scriptname} -- "$@" 2> /dev/null)
 
@@ -80,9 +80,9 @@ while [ $# -ne 0 ]; do
         --hide-deps)
             hidden_deps=true
             ;;
-        --deploy-confg)
+        --deploy)
             shift
-            DEPLOY_CONFIG=$1
+            DEPLOY=$1
             ;;
         --)
             ;;
@@ -147,9 +147,20 @@ if [ -n "$hidden_deps" ]; then
   echo "hide-toolchains=$possible_deps" >> $CONFIGFILE
 fi
 
-if [ -n "$DEPLOY_CONFIG" ]; then
-  mv $CONFIGFILE $DEPLOY_CONFIG
-  exit 0;
+if [ -n "$DEPLOY" ]; then
+  set -e
+  create_config $DEPLOY/config.cfg-tmp
+  echo "include-module-naming-schemes=$DEPLOY/module_naming_scheme/lowercase_categorized_mns.py" >> $DEPLOY/config.cfg-tmp
+  echo "module-naming-scheme=LowercaseCategorizedModuleNamingScheme" >> $DEPLOY/config.cfg-tmp
+  echo "hide-deps=$possible_deps" >> $DEPLOY/config.cfg-tmp
+  echo "hide-toolchains=$possible_deps" >> $DEPLOY/config.cfg-tmp
+  mv $DEPLOY/config.cfg-tmp $DEPLOY/config.cfg
+  rsync -aHhv "$(pwd)/easybuild/" $DEPLOY
+  find "$(pwd)/nemobuild" -type f -exec sed -i "s#{{DEPLOYDIR}}#${DEPLOY}#g" {} \;
+  rsync -aHhv "$(pwd)/nemobuild" "$MODULES_PREFIX/all"
+  rsync -aHhv "$(pwd)/easybuild-tools/" $DEPLOY
+
+  exit 0
 fi
 
 if [ -n "$use_path" ]; then
