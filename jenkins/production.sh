@@ -148,6 +148,7 @@ if [ -n "$hidden_deps" ]; then
 fi
 
 if [ -n "$DEPLOY" ]; then
+  set -e
   create_config $DEPLOY/config.cfg-tmp
   echo "include-module-naming-schemes=$DEPLOY/module_naming_scheme/lowercase_categorized_mns.py" >> $DEPLOY/config.cfg-tmp
   echo "module-naming-scheme=LowercaseCategorizedModuleNamingScheme" >> $DEPLOY/config.cfg-tmp
