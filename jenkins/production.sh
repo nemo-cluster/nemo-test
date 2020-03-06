@@ -156,8 +156,8 @@ if [ -n "$DEPLOY" ]; then
   echo "hide-toolchains=$possible_deps" >> $DEPLOY/config.cfg-tmp
   mv $DEPLOY/config.cfg-tmp $DEPLOY/config.cfg
   rsync -aHhv "$(pwd)/easybuild/" $DEPLOY
-  find "$(pwd)/NemoBuild" -type f -exec sed -i "s#{{DEPLOYDIR}}#${DEPLOY}#g" {} \;
-  rsync -aHhv "$(pwd)/NemoBuild" "$MODULES_PREFIX/all"
+  find "$(pwd)/nemobuild" -type f -exec sed -i "s#{{DEPLOYDIR}}#${DEPLOY}#g" {} \;
+  rsync -aHhv "$(pwd)/nemobuild" "$MODULES_PREFIX/all"
   rsync -aHhv "$(pwd)/easybuild-tools/" $DEPLOY
 
   exit 0
