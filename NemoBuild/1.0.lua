@@ -24,8 +24,8 @@ depends_on("EasyBuild")
 
 --- Custum stuff
 setenv("EASYBUILD_PREFIX", pathJoin(os.getenv("HOME"), "nemobuild"))
-setenv("EASYBUILD_CONFIGFILES","/opt/nemobuild/config.cfg")
-append_path("EASYBUILD_ROBOT_PATHS", "/opt/nemobuild/easyconfigs")
+setenv("EASYBUILD_CONFIGFILES","{{DEPLOYDIR}}/config.cfg")
+append_path("EASYBUILD_ROBOT_PATHS", "{{DEPLOYDIR}}/easyconfigs")
 append_path("EASYBUILD_ROBOT_PATHS", pathJoin(os.getenv("EBROOTEASYBUILD"), "easybuild/easyconfigs"))
 prepend_path("MODULEPATH", pathJoin(os.getenv("HOME"),"nemobuild/modules/all"))
 

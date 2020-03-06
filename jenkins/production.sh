@@ -150,14 +150,15 @@ fi
 if [ -n "$DEPLOY" ]; then
   create_config $DEPLOY/config.cfg-tmp
   echo "include-module-naming-schemes=$DEPLOY/module_naming_scheme/lowercase_categorized_mns.py" >> $DEPLOY/config.cfg-tmp
-  echo "module-naming-scheme=LowercaseCategorizedModuleNamingScheme" >> $DEPLOY/config.cfg-tmp 
-  echo "hide-deps=$possible_deps" >> $DEPLOY/config.cfg-tmp 
-  echo "hide-toolchains=$possible_deps" >> $DEPLOY/config.cfg-tmp 
+  echo "module-naming-scheme=LowercaseCategorizedModuleNamingScheme" >> $DEPLOY/config.cfg-tmp
+  echo "hide-deps=$possible_deps" >> $DEPLOY/config.cfg-tmp
+  echo "hide-toolchains=$possible_deps" >> $DEPLOY/config.cfg-tmp
   mv $DEPLOY/config.cfg-tmp $DEPLOY/config.cfg
   rsync -aHhv "$(pwd)/easybuild/" $DEPLOY
+  find "$(pwd)/NemoBuild" -type f -exec sed -i "s#{{DEPLOYDIR}}#${DEPLOY}#g" {} \;
   rsync -aHhv "$(pwd)/NemoBuild" "$MODULES_PREFIX/all"
   rsync -aHhv "$(pwd)/easybuild-tools/" $DEPLOY
-  
+
   exit 0
 fi
 
