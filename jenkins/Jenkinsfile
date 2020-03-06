@@ -5,7 +5,8 @@ def cluster = [cpus: "20",
                prefix: "/home/jenkins/easybuild-files",
                modules_prefix: "/opt/modules",
                software_prefix: "/opt/software",
-               easybuild_path: "/opt/easybuild/modules/all"]
+               easybuild_path: "/opt/easybuild/modules/all",
+               deploy_path: "/opt/nemobuild"] //If changing in here needs to change the nemobuild module in the git repo
 
 def running_opts = ""
 
@@ -74,18 +75,22 @@ pipeline {
                             running_opts += " --prefix=${cluster.prefix}"
                             running_opts += " --soft-prefix=${cluster.software_prefix}"
                             running_opts += " --modules-prefix=${cluster.modules_prefix}"
+                            vars.deploy_path = cluster.deploy_path
                         } else if( vars.branch == "origin/develop"){
                             //Do rsync and put new prefixes...
                             running_opts += " --prefix=${HOME}/develop/cluster-prefix"
                             running_opts += " --soft-prefix=${HOME}/develop/software-prefix"
                             running_opts += " --modules-prefix=${HOME}/develop/modules-prefix"
+                            vars.deploy_path = "${HOME}/develop/nemobuild"
                             sh("""
                             mkdir -p ${HOME}/develop/cluster-prefix;
                             mkdir -p ${HOME}/develop/software-prefix;
                             mkdir -p ${HOME}/develop/modules-prefix;
+                            mkdir -p ${HOME}/develop/nemobuild;
                             rsync -aHhv --delete ${cluster.prefix}/ ${HOME}/develop/cluster-prefix;
                             rsync -aHhv --delete ${cluster.software_prefix}/ ${HOME}/develop/software-prefix;
                             rsync -aHhv --delete ${cluster.modules_prefix}/ ${HOME}/develop/modules-prefix;
+                            rsync -aHhv --delete ${cluster.deploy_path}/ ${HOME}/develop/nemobuild;
                             """)
                         }
                     }
@@ -106,6 +111,7 @@ pipeline {
                 script {
                     command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $vars.workingDir/jenkins/production.sh $running_opts"
                     sh("""$command""")
+                    sh("""$vars.workingDir/jenkins/production.sh --deploy=$vars.deploy_path $running_opts""")
                 }
             }
         }
