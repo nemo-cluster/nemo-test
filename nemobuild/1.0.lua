@@ -20,7 +20,7 @@ whatis([==[URL: http://easybuilders.github.com/easybuild/]==])
 
 conflict("nemobuild")
 
-depends_on("easybuild")
+depends_on("tools/easybuild")
 
 --- Custum stuff
 setenv("EASYBUILD_PREFIX", pathJoin(os.getenv("HOME"), "nemobuild"))
