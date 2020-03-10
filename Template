@@ -1,6 +1,6 @@
-EasyBuild-4.1.0.eb
+EasyBuild-4.1.0.eb --hidden
 Anaconda3-5.3.0.eb
-foss-2019b.eb
+foss-2019b.eb --hidden
 GCC-9.2.0-2.32.eb
 Python-3.7.4-GCCcore-8.3.0.eb
 Cython-0.29.15-GCCcore-8.3.0-Python-3.7.4.eb

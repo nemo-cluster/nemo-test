@@ -185,8 +185,8 @@ for ((i=0; i<${#eb_files[@]}; i++)); do
 done
 
 # checks dependency list using dry run
-echo -e eb "${eb_files[@]}" -Dr "${eb_args[@]}"
-dryrun=$(eb "${eb_files[@]}" -Dr "${eb_args[@]}" 2>&1)
+echo -e eb ${eb_files[@]} -Dr "${eb_args[@]}"
+dryrun=$(eb ${eb_files[@]} -Dr "${eb_args[@]}" 2>&1)
 if [[ "$dryrun" =~ "ERROR" ]]; then
  echo -e "$dryrun" | grep "ERROR"
  exit 1
@@ -203,8 +203,8 @@ for((i=0; i<${#eb_files[@]}; i++)); do
   # define name and version of the current build starting from the recipe name (obtained removing EasyBuild options from eb_files)
   recipe=$(echo "${eb_files[$i]}" | cut -d' ' -f 1)
   name=$(echo "$recipe" | cut -d'-' -f 1)
-  echo -e eb "${eb_files[$i]}" -r "${eb_args[@]}"
-  eb "${eb_files[$i]}" -r "${eb_args[@]}"
+  echo -e eb ${eb_files[$i]} -r "${eb_args[@]}"
+  eb ${eb_files[$i]} -r "${eb_args[@]}"
   status=$((status+$?))
 done
 
