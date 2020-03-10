@@ -1,4 +1,4 @@
-EasyBuild-4.1.0.eb
+EasyBuild-4.1.0.eb --try-software-version=4.1.1
 Anaconda3-5.3.0.eb
 foss-2019b.eb
 GCC-9.2.0-2.32.eb
