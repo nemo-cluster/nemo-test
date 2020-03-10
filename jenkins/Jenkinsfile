@@ -87,10 +87,10 @@ pipeline {
                             mkdir -p ${HOME}/develop/software-prefix;
                             mkdir -p ${HOME}/develop/modules-prefix;
                             mkdir -p ${HOME}/develop/nemobuild;
-                            rsync -aHhv --delete ${cluster.prefix}/ ${HOME}/develop/cluster-prefix;
-                            rsync -aHhv --delete ${cluster.software_prefix}/ ${HOME}/develop/software-prefix;
-                            rsync -aHhv --delete ${cluster.modules_prefix}/ ${HOME}/develop/modules-prefix;
-                            rsync -aHhv --delete ${cluster.deploy_path}/ ${HOME}/develop/nemobuild;
+                            rsync -aHh --delete ${cluster.prefix}/ ${HOME}/develop/cluster-prefix;
+                            rsync -aHh --delete ${cluster.software_prefix}/ ${HOME}/develop/software-prefix;
+                            rsync -aHh --delete ${cluster.modules_prefix}/ ${HOME}/develop/modules-prefix;
+                            rsync -aHh --delete ${cluster.deploy_path}/ ${HOME}/develop/nemobuild;
                             """)
                         }
                     }
