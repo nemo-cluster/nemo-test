@@ -1,5 +1,5 @@
-EasyBuild-4.1.0.eb --hidden --set-default-module
-Anaconda3-5.3.0.eb --set-default-module
+--install-latest-eb-release
+Anaconda3-5.3.0.eb
 foss-2019b.eb
 GCC-9.2.0-2.32.eb
 Python-3.7.4-GCCcore-8.3.0.eb
