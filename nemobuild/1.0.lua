@@ -18,9 +18,9 @@ repeatable and robust way.]==])
 whatis([==[Homepage: http://easybuilders.github.com/easybuild/]==])
 whatis([==[URL: http://easybuilders.github.com/easybuild/]==])
 
-conflict("EasyBuild-custom")
+conflict("nemobuild")
 
-depends_on("EasyBuild")
+depends_on("easybuild")
 
 --- Custum stuff
 setenv("EASYBUILD_PREFIX", pathJoin(os.getenv("HOME"), "nemobuild"))
