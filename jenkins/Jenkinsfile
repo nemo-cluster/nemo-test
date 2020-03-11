@@ -6,7 +6,7 @@ def cluster = [cpus: "20",
                modules_prefix: "/opt/modules",
                software_prefix: "/opt/software",
                easybuild_path: "/opt/easybuild/modules/all",
-               deploy_path: "/opt/nemobuild"] //If changing in here needs to change the nemobuild module in the git repo
+               deploy_path: "/opt/nemobuild"]
 
 def running_opts = ""
 
@@ -30,7 +30,7 @@ pipeline {
                 }
             }
         }
-        stage('TestBuild'){
+        stage('TestBuild') {
             when {
                 expression { 
                     vars.differences > 0 && 
@@ -52,9 +52,9 @@ pipeline {
                 }
             }    
         }
-        stage('Prepare Build'){
+        stage('Prepare Build') {
             when {
-                expression{
+                expression {
                     vars.branch == "origin/master" ||
                     vars.branch == "origin/develop"
                 }
@@ -71,12 +71,12 @@ pipeline {
                         vars.regression = "True"
                     } else {
                         vars.regression = "False"
-                        if (vars.branch == "origin/master"){ // Case master
+                        if (vars.branch == "origin/master") { // Case master
                             running_opts += " --prefix=${cluster.prefix}"
                             running_opts += " --soft-prefix=${cluster.software_prefix}"
                             running_opts += " --modules-prefix=${cluster.modules_prefix}"
                             vars.deploy_path = cluster.deploy_path
-                        } else if( vars.branch == "origin/develop"){
+                        } else if( vars.branch == "origin/develop") {
                             //Do rsync and put new prefixes...
                             running_opts += " --prefix=${HOME}/develop/cluster-prefix"
                             running_opts += " --soft-prefix=${HOME}/develop/software-prefix"
@@ -97,7 +97,7 @@ pipeline {
                 }
             }
         }
-        stage('Build'){
+        stage('Build') {
             when {
                 expression {
                     (vars.branch == "origin/master" ||
@@ -115,7 +115,7 @@ pipeline {
                 }
             }
         }
-        stage('Regression'){
+        stage('Regression') {
             when {
                 expression {
                     (vars.branch == "origin/master" ||
