@@ -159,6 +159,7 @@ if [ -n "$DEPLOY" ]; then
   find "$(pwd)/nemobuild" -type f -exec sed -i "s#{{DEPLOYDIR}}#${DEPLOY}#g" {} \;
   rsync -aHh "$(pwd)/nemobuild" "$MODULES_PREFIX/all"
   rsync -aHh "$(pwd)/easybuild-tools/" $DEPLOY
+  rsync -aHh "$(pwd)/jenkins" $DEPLOY/
 
   exit 0
 fi

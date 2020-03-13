@@ -51,7 +51,7 @@ pipeline {
                     running_opts += " --eb-path=${cluster.easybuild_path}"
                     running_opts += " --hide-deps"
                     sh("""git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ |awk '{print \"basename \"\$0}' > ${softwareList}""")
-                    command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $vars.workingDir/jenkins/production.sh $running_opts"
+                    command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $cluster.deploy_path/jenkins/production.sh $running_opts"
                     sh("""$command""")
                 }
             }    
@@ -115,9 +115,9 @@ pipeline {
             }
             steps {
                 script {
-                    command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $vars.workingDir/jenkins/production.sh $running_opts"
+                    command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $cluster.deploy_path/jenkins/production.sh $running_opts"
                     sh("""$command""")
-                    sh("""$vars.workingDir/jenkins/production.sh --deploy=$vars.deploy_path $running_opts""")
+                    sh("""$cluster.deploy_path/jenkins/production.sh --deploy=$vars.deploy_path $running_opts""")
                 }
             }
         }
@@ -129,7 +129,7 @@ pipeline {
             }
             steps {
                 script {
-                    command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $vars.workingDir/jenkins/production.sh $running_opts"
+                    command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $cluster.deploy_path/jenkins/production.sh $running_opts"
                     sh("""$command""")
                 }
             }
