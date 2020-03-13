@@ -19,10 +19,14 @@ pipeline {
             steps {
                 script {
                     gitVars = checkout scm
+                    echo "$gitVars"
                     vars.workingDir = sh(returnStdout: true,
                         script: 'echo $PWD').trim()
-                    vars.branch = gitVars.GIT_BRANCH.trim()
-                    vars.triggeredBy = currentBuild.getBuildCauses()[0].shortDescription.split(' ')[2]
+                    if (vars.branch ==~ /.*origin.*/ ) {
+                        vars.triggeredBy = currentBuild.getBuildCauses()[0].shortDescription.split(' ')[2]
+                    } else {
+                        vars.triggeredBy = "False"
+                    }
                     vars.commitMessage = sh(returnStdout: true, script: 'git log -1 --pretty=format:%s').trim()
                     vars.differences = sh(returnStdout: true, script: 'git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ | wc -l').trim() as Integer
                     vars.regression = "False"
