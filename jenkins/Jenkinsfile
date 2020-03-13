@@ -19,7 +19,7 @@ pipeline {
             steps {
                 script {
                     gitVars = checkout scm
-                    echo "$gitVars"
+                    vars.branch = gitVars.GIT_BRANCH.trim()
                     vars.workingDir = sh(returnStdout: true,
                         script: 'echo $PWD').trim()
                     if (vars.branch ==~ /.*origin.*/ ) {
