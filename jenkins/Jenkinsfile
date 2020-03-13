@@ -56,7 +56,9 @@ pipeline {
             when {
                 expression {
                     vars.branch == "master" ||
-                    vars.branch == "develop"
+                    vars.branch == "develop" ||
+                    vars.branch == "origin/master" ||
+                    vars.branch == "origin/develop"
                 }
             }
             steps {
@@ -117,10 +119,6 @@ pipeline {
         }
         stage('Regression') {
             when {
-                expression {
-                    (vars.branch == "master" ||
-                    vars.branch == "develop") 
-                }
                 expression {
                     vars.regression == "True"
                 }
