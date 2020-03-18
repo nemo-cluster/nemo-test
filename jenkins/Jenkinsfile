@@ -3,10 +3,10 @@
 def cluster = [cpus: "20",
                mem: "120g",
                prefix: "/home/jenkins/easybuild-files",
-               modules_prefix: "/opt/modules",
-               software_prefix: "/opt/software",
+               modules_prefix: "/opt/bwhpc/easybuild/modules",
+               software_prefix: "/opt/bwhpc/easybuild/software",
                easybuild_path: "/opt/easybuild/modules/all",
-               deploy_path: "/opt/nemobuild"]
+               deploy_path: "/opt/bwhpc/easybuild/nemobuild"]
 
 def running_opts = ""
 
@@ -14,6 +14,9 @@ def vars = [:]
 
 pipeline {
     agent { label 'mg2'}
+    options {
+        disableConcurrentBuilds()
+    }
     stages {
         stage('GetVars') {
             steps {
