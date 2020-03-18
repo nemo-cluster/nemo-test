@@ -80,12 +80,12 @@ pipeline {
                         vars.regression = "True"
                     } else {
                         vars.regression = "False"
-                        if (vars.branch == "master") { // Case master
+                        if (vars.branch == "origin/master" || vars.branch == "master") { // Case master
                             running_opts += " --prefix=${cluster.prefix}"
                             running_opts += " --soft-prefix=${cluster.software_prefix}"
                             running_opts += " --modules-prefix=${cluster.modules_prefix}"
                             vars.deploy_path = cluster.deploy_path
-                        } else if( vars.branch == "develop") {
+                        } else if(vars.branch == "origin/develop" || vars.branch == "develop") {
                             //Do rsync and put new prefixes...
                             running_opts += " --prefix=${HOME}/develop/cluster-prefix"
                             running_opts += " --soft-prefix=${HOME}/develop/software-prefix"
