@@ -109,8 +109,10 @@ pipeline {
         stage('Build') {
             when {
                 expression {
-                    (vars.branch == "master" ||
-                    vars.branch == "develop")
+                    vars.branch == "master" ||
+                    vars.branch == "develop" ||
+                    vars.branch == "origin/master" ||
+                    vars.branch == "origin/develop"
                 }
                 expression {
                     vars.regression == "False"
