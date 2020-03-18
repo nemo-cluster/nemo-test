@@ -3,10 +3,10 @@
 def cluster = [cpus: "20",
                mem: "120g",
                prefix: "/home/jenkins/easybuild-files",
-               modules_prefix: "/opt/modules",
-               software_prefix: "/opt/software",
-               easybuild_path: "/opt/easybuild/modules/all",
-               deploy_path: "/opt/nemobuild"]
+               modules_prefix: "/opt/bwhpc/modules",
+               software_prefix: "/opt/bwhpc/software",
+               easybuild_path: "/opt/bwhpc/easybuild/modules/all",
+               deploy_path: "/opt/bwhpc/nemobuild"]
 
 def running_opts = ""
 
