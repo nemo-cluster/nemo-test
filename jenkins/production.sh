@@ -154,10 +154,11 @@ if [ -n "$DEPLOY" ]; then
   echo "module-naming-scheme=LowercaseCategorizedModuleNamingScheme" >> $DEPLOY/config.cfg-tmp
   echo "hide-deps=$possible_deps" >> $DEPLOY/config.cfg-tmp
   echo "hide-toolchains=$possible_deps" >> $DEPLOY/config.cfg-tmp
+  mkdir -p "$MODULES_PREFIX/all/tools"
   mv $DEPLOY/config.cfg-tmp $DEPLOY/config.cfg
   rsync -aHh "$(pwd)/easybuild/" $DEPLOY
   find "$(pwd)/nemobuild" -type f -exec sed -i "s#{{DEPLOYDIR}}#${DEPLOY}#g" {} \;
-  rsync -aHh "$(pwd)/nemobuild" "$MODULES_PREFIX/all"
+  rsync -aHh "$(pwd)/nemobuild" "$MODULES_PREFIX/all/tools"
   rsync -aHh "$(pwd)/easybuild-tools/" $DEPLOY
   rsync -aHh "$(pwd)/jenkins" $DEPLOY/
 
