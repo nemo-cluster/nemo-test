@@ -3,7 +3,7 @@ Cython-0.29.15-GCCcore-8.3.0-Python-3.7.4.eb
 EasyBuild-4.1.1.eb --hidden
 FFTW-3.3.8-gompi-2019b.eb
 foss-2019b.eb --hidden
-GCCcore-8.3.0.eb
+GCC-8.3.0.eb
 GSL-2.6-GCC-8.3.0.eb
 nest-simulator-2.20.0-foss-2019b.eb
 OpenBLAS-0.3.7-GCC-8.3.0.eb
