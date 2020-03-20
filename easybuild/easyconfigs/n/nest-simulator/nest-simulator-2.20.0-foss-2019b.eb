@@ -17,7 +17,7 @@ moduleclass = 'bio'
 dependencies = [
 ('Cython', '0.29.15', '-Python-3.7.4', ('GCCcore', '8.3.0')),
 ('Python', '3.7.4', '', ('GCCcore', '8.3.0')),
-('OpenMPI', '3.1.4', '', ('GCCcore', '8.3.0'))
+('OpenMPI', '3.1.4', '', ('GCC', '8.3.0'))
 ]
 
 source_urls = ['https://github.com/nest/%(name)s/archive/']
