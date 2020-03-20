@@ -17,11 +17,10 @@ moduleclass = 'bio'
 dependencies = [
 ('Cython', '0.29.15', '-Python-3.7.4', ('GCCcore', '8.3.0')),
 ('Python', '3.7.4', '', ('GCCcore', '8.3.0')),
-('OpenMPI', '3.1.4' '', ('GCCcore', '8.3.0'))
+('OpenMPI', '3.1.4', '', ('GCCcore', '8.3.0'))
 ]
 
 source_urls = ['https://github.com/nest/%(name)s/archive/']
 sources = ['v%(version)s.tar.gz']
 checksums = ['40e33187c22d6e843d80095b221fa7fd5ebe4dbc0116765a91fc5c425dd0eca4']
 configopts = '-Dwith-mpi=ON -Dwith-openmp=ON -Dwith-python=ON'
-
