@@ -16,7 +16,7 @@ moduleclass = 'bio'
 
 dependencies = [
 ('Cython', '0.29.15', '-Python-3.7.4', ('GCCcore', '8.3.0')),
-('IntelPython', '3.6.8', '-2019.2.066'),
+('IntelPython', '3.6.8-2019.2.066', ''),
 ('OpenMPI', '3.1.4', '', ('GCC', '8.3.0'))
 ]
 
