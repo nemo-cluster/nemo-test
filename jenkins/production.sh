@@ -19,6 +19,7 @@ usage() {
     --hide-deps       Force hide modules listed in 'hide-deps' (TestingEB only)
     --exit-on-error   Exit when an error occurs (TestingEB only)
     --deploy          Deploy nemobuild to the folder and exit (Deploy only)
+    --env-file        Sources an envfile for license variables
     "
     exit 1;
 }
@@ -30,7 +31,7 @@ create_config() {
     fi
 }
 
-longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error,soft-prefix:,modules-prefix:,deploy:"
+longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error,soft-prefix:,modules-prefix:,deploy:,env-file:"
 shortopts="h,l:,p:,r:,u:,e:"
 eval set -- $(getopt -o ${shortopts} -l ${longopts} -n ${scriptname} -- "$@" 2> /dev/null)
 
@@ -84,6 +85,10 @@ while [ $# -ne 0 ]; do
             shift
             DEPLOY=$1
             ;;
+         --env-file)
+            shift
+            ENV_FILE=$1
+            ;;
         --)
             ;;
         *)
@@ -127,6 +132,10 @@ fi
 if [ -z "$EB_PATH" ]; then
   echo -e "\n Need to specify EasyBuild path. Please use uoption -e, --eb-path \n"
   usage
+fi
+
+if [ -n "$ENV_FILE" ]; then
+  source "$ENV_FILE"
 fi
 
 echo "include-module-naming-schemes=$(pwd)/easybuild-tools/module_naming_scheme/lowercase_categorized_mns.py" >> $CONFIGFILE
