@@ -6,7 +6,8 @@ def cluster = [cpus: "20",
                modules_prefix: "/opt/bwhpc/easybuild/modules",
                software_prefix: "/opt/bwhpc/easybuild/software",
                easybuild_path: "/opt/easybuild/modules/all",
-               deploy_path: "/opt/bwhpc/easybuild/nemobuild"]
+               deploy_path: "/opt/bwhpc/easybuild/nemobuild",
+               env_file_path: "/opt/bwhpc/easybuild/nemobuild/env"]
 
 def running_opts = ""
 
@@ -34,6 +35,9 @@ pipeline {
                     vars.differences = sh(returnStdout: true, script: 'git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ | wc -l').trim() as Integer
                     vars.regression = "False"
                     echo "$vars"
+                    if (fileExists(cluster.env_file_path)) {
+                        running_opts += " --env-file ${cluster.env_file_path}"
+                    }
                 }
             }
         }
