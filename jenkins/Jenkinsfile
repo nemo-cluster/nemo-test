@@ -57,6 +57,7 @@ pipeline {
                     running_opts += " --use=${cluster.modules_prefix}/all"
                     running_opts += " --eb-path=${cluster.easybuild_path}"
                     running_opts += " --hide-deps"
+                    running_opts += " --force"
                     sh("""git diff origin/master...HEAD --name-only --oneline --no-merges --diff-filter=ACMRTUXB |grep ^easybuild\\/easyconfigs\\/.*\\.eb\\\$ |awk '{print \"basename \"\$0}' > ${softwareList}""")
                     command = "srun --partition=1d --cpus-per-task=$cluster.cpus --mem=$cluster.mem $cluster.deploy_path/jenkins/production.sh $running_opts"
                     sh("""$command""")

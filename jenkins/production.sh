@@ -20,6 +20,7 @@ usage() {
     --exit-on-error   Exit when an error occurs (TestingEB only)
     --deploy          Deploy nemobuild to the folder and exit (Deploy only)
     --env-file        Sources an envfile for license variables
+    --force	      Rebuild module even if it is found(only for testbuild)
     "
     exit 1;
 }
@@ -31,7 +32,7 @@ create_config() {
     fi
 }
 
-longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error,soft-prefix:,modules-prefix:,deploy:,env-file:"
+longopts="help,list:,prefix:,robot:,use:,eb-path:,hide-deps,exit-on-error,soft-prefix:,modules-prefix:,deploy:,env-file:,force"
 shortopts="h,l:,p:,r:,u:,e:"
 eval set -- $(getopt -o ${shortopts} -l ${longopts} -n ${scriptname} -- "$@" 2> /dev/null)
 
@@ -40,8 +41,7 @@ eb_lists=()
 while [ $# -ne 0 ]; do
     case $1 in
         -f | --force)
-            shift
-            force_list="$1"
+            FORCE=true
             ;;
         -h | --help)
             usage
@@ -136,6 +136,10 @@ fi
 
 if [ -n "$ENV_FILE" ]; then
   source "$ENV_FILE"
+fi
+
+if [ -n "$FORCE" ]; then
+  eb_args+=("--force")
 fi
 
 echo "include-module-naming-schemes=$(pwd)/easybuild-tools/module_naming_scheme/lowercase_categorized_mns.py" >> $CONFIGFILE
