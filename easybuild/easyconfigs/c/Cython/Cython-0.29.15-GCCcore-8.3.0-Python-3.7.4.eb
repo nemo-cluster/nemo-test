@@ -9,7 +9,6 @@
 # Notes::
 ##
 
-
 easyblock = 'PythonPackage'
 
 name = 'Cython'
