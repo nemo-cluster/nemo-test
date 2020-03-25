@@ -71,6 +71,20 @@ class LowercaseHierarchicalMNS(ModuleNamingScheme):
     """Class implementing an example hierarchical module naming scheme."""
 
     REQUIRED_KEYS = ['name', 'versionprefix', 'version', 'versionsuffix', 'toolchain', 'moduleclass']
+    
+    def is_short_modname_for(self, short_modname, name):
+        """
+        Determine whether the specified (short) module name is a module for software with the specified name.
+        Default implementation checks via a strict regex pattern, and assumes short module names are of the form:
+        <name>/<version>[-<toolchain>]
+        """
+        modname_regex = re.compile('^%s/\S+$' % re.escape(name.lower()))
+        res = bool(modname_regex.match(short_modname))
+
+        tup = (short_modname, name, modname_regex.pattern, res)
+        self.log.debug("Checking whether '%s' is a module name for software with name '%s' via regex %s: %s" % tup)
+
+        return res
 
     def requires_toolchain_details(self):
         """
@@ -122,7 +136,7 @@ class LowercaseHierarchicalMNS(ModuleNamingScheme):
                 raise EasyBuildError("Unknown set of toolchain compilers, module naming scheme needs work: %s",
                                      comp_names)
             res = (tc_comp_name, tc_comp_ver)
-        return res
+        return res.lower()
 
     def det_module_subdir(self, ec):
         """
@@ -146,7 +160,7 @@ class LowercaseHierarchicalMNS(ModuleNamingScheme):
                 tc_mpi_fullver = self.det_full_version(tc_mpi)
                 subdir = os.path.join(MPI, tc_comp_name, tc_comp_ver, tc_mpi['name'], tc_mpi_fullver)
 
-        return subdir
+        return subdir.lower()
 
     def det_module_symlink_paths(self, ec):
         """
@@ -223,7 +237,7 @@ class LowercaseHierarchicalMNS(ModuleNamingScheme):
                 fullver = self.det_full_version(ec)
                 paths.append(os.path.join(MPI, tc_comp_name, tc_comp_ver, ec['name'], fullver))
 
-        return paths
+        return [i.lower() for i in paths]
 
     def expand_toolchain_load(self, ec=None):
         """
@@ -236,4 +250,4 @@ class LowercaseHierarchicalMNS(ModuleNamingScheme):
         """
         Determine list of initial module paths (i.e. top of the hierarchy).
         """
-        return [CORE]
+        return [CORE.lower()]
