@@ -142,8 +142,9 @@ if [ -n "$FORCE" ]; then
   eb_args+=("--force")
 fi
 
-echo "include-module-naming-schemes=$(pwd)/easybuild-tools/module_naming_scheme/lowercase_categorized_mns.py" >> $CONFIGFILE
-echo "module-naming-scheme=LowercaseCategorizedModuleNamingScheme" >> $CONFIGFILE
+echo "include-module-naming-schemes=$(pwd)/easybuild-tools/module_naming_scheme/lowercase_categorized_mns.py,$(pwd)/easybuild-tools/module_naming_scheme/lowercase_hierarchical_mns.py" >> $CONFIGFILE
+#echo "module-naming-scheme=LowercaseCategorizedModuleNamingScheme" >> $CONFIGFILE
+echo "module-naming-scheme=LowercaseHierarchicalMNS" >> $CONFIGFILE
 
 # --- BUILD ---
 module use "$EB_PATH"
