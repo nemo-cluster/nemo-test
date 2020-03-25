@@ -136,7 +136,7 @@ class LowercaseHierarchicalMNS(ModuleNamingScheme):
                 raise EasyBuildError("Unknown set of toolchain compilers, module naming scheme needs work: %s",
                                      comp_names)
             res = (tc_comp_name, tc_comp_ver)
-        return res.lower()
+        return res
 
     def det_module_subdir(self, ec):
         """
