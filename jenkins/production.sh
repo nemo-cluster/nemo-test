@@ -112,7 +112,7 @@ if [ -z "$PREFIX" ]; then
     echo -e "\n Prefix folder not defined. Please use the option -p,--prefix to define the prefix folder \n"
     usage
 else
-  # eb_args+=("--prefix=$PREFIX")
+  #eb_args+=("--prefix=$PREFIX")
   echo "prefix=$PREFIX" >> $CONFIGFILE
 fi
 
@@ -143,8 +143,8 @@ if [ -n "$FORCE" ]; then
 fi
 
 echo "include-module-naming-schemes=$(pwd)/easybuild-tools/module_naming_scheme/lowercase_categorized_mns.py,$(pwd)/easybuild-tools/module_naming_scheme/lowercase_hierarchical_mns.py" >> $CONFIGFILE
-#echo "module-naming-scheme=LowercaseCategorizedModuleNamingScheme" >> $CONFIGFILE
-echo "module-naming-scheme=LowercaseHierarchicalMNS" >> $CONFIGFILE
+echo "module-naming-scheme=LowercaseCategorizedModuleNamingScheme" >> $CONFIGFILE
+#echo "module-naming-scheme=LowercaseHierarchicalMNS" >> $CONFIGFILE
 
 # --- BUILD ---
 module use "$EB_PATH"
