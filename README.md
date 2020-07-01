@@ -1,8 +1,8 @@
-This is the main project of NEMO continuos integration.
+This is the main project of NEMO continuous integration.
 
 **HOWTO**
 
-Users can fork this repository, add new easyconfigs and have it tested trought a pull request.
+Users can fork this repository, add new easyconfigs and have it tested trough a pull request.
 
 Once the pull request is accepted, it will be possible use this new easyconfig in our cluster.
 
