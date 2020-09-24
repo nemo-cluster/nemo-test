@@ -1,3 +1,6 @@
+[![Build Status](https://build01.bwcloud.uni-freiburg.de/job/Nemo/job/Nemo-PullRequests/badge/icon)](https://build01.bwcloud.uni-freiburg.de/job/Nemo/job/Nemo-PullRequests/)
+[![Build Status](https://build01.bwcloud.uni-freiburg.de/job/Nemo/job/Nemo-Regression/badge/icon?subject=regression)](https://build01.bwcloud.uni-freiburg.de/job/Nemo/job/Nemo-Regression/)
+
 This is the main project of NEMO continuous integration.
 
 **HOWTO**
